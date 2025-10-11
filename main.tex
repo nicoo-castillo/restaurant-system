@@ -1,0 +1,268 @@
+\documentclass[a4paper,12pt]{article}
+
+% -----------------------
+% Paquetes
+% -----------------------
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\geometry{margin=2.5cm}
+
+% Configuración de código
+\lstset{
+    language=Python,
+    backgroundcolor=\color{gray!10},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red!70!black},
+    showstringspaces=false,
+    frame=single
+}
+
+% Definición de entorno opcional (en color púrpura)
+\newenvironment{opcional}{
+  \par\color{purple}\begin{quote}\textbf{Sección Opcional / Ampliación:}\\
+}{
+  \end{quote}\par
+}
+
+% -----------------------
+% Datos para portada
+% -----------------------
+\title{\Huge Informe sobre Programación Orientada a Objetos en Python \\[0.2cm]
+\large Herencia, Clases Abstractas, Polimorfismo, Interfaces y MRO}
+\author{Nombre del Estudiante \\[0.2cm]
+\textbf{Profesor:} Guido Mellado \\[0.2cm]
+\textbf{Asignatura:} Programación II}
+\date{\today}
+
+\begin{document}
+% Portada
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% Índice
+\tableofcontents
+\newpage
+
+% -----------------------
+% Introducción
+% -----------------------
+\section{Introducción}
+La Programación Orientada a Objetos (POO) es un paradigma de programación que busca modelar el software utilizando conceptos inspirados en el mundo real, como clases y objetos.  
+Los pilares de la POO incluyen la abstracción, la herencia, el polimorfismo y el encapsulamiento.  
+
+En este informe se abordarán los siguientes conceptos clave:
+\begin{itemize}
+    \item \textbf{Herencia}: reutilización de código a través de clases derivadas.
+    \item \textbf{Clases Abstractas}: definición de plantillas obligatorias para subclases.
+    \item \textbf{Polimorfismo}: capacidad de usar métodos comunes en diferentes tipos de objetos.
+    \item \textbf{Interfaces}: contratos que garantizan consistencia entre distintas clases.
+    \item \textbf{Method Resolution Order (MRO)}: mecanismo de resolución de métodos en herencia múltiple.
+\end{itemize}
+
+Adicionalmente, se incluirán secciones opcionales sobre \texttt{super()}, \textit{duck typing} y \textit{dunder methods}, útiles para enriquecer el dominio de POO en Python.
+
+% -----------------------
+% Herencia
+% -----------------------
+\section{Herencia}
+La \textbf{herencia} permite que una clase hija (o subclase) adquiera atributos y métodos de una clase padre (o superclase). Esto fomenta la reutilización de código y la jerarquía lógica de los objetos.
+
+Ejemplo básico:
+
+\begin{lstlisting}
+class Persona:
+    def presentacion(self):
+        print("Soy una persona")
+
+class Estudiante(Persona):
+    def presentacion(self):
+        # Uso de super() para extender el comportamiento
+        super().presentacion()
+        print("...y también soy estudiante")
+
+e = Estudiante()
+e.presentacion()
+# Salida:
+# Soy una persona
+# ...y también soy estudiante
+\end{lstlisting}
+
+La relación entre una clase y su subclase suele representarse con el principio \textit{“es-un”}.  
+Por ejemplo: un estudiante \textbf{es una} persona, un círculo \textbf{es una} figura geométrica.
+
+% -----------------------
+% Clases abstractas
+% -----------------------
+\section{Clases Abstractas}
+Las \textbf{clases abstractas} son aquellas que no pueden ser instanciadas directamente.  
+Sirven como plantillas que obligan a las subclases a implementar ciertos métodos. En Python se definen con el módulo \texttt{abc}.
+
+\begin{lstlisting}
+from abc import ABC, abstractmethod
+
+class Figura(ABC):
+    @abstractmethod
+    def area(self):
+        pass
+
+class Circulo(Figura):
+    def __init__(self, radio):
+        self.radio = radio
+    def area(self):
+        return 3.14 * self.radio ** 2
+\end{lstlisting}
+
+Esto asegura que toda clase derivada de \texttt{Figura} debe implementar el método \texttt{area()}.
+
+% -----------------------
+% Polimorfismo
+% -----------------------
+\section{Polimorfismo}
+El \textbf{polimorfismo} consiste en la capacidad de utilizar un mismo método en diferentes clases, adaptando su comportamiento.
+
+\subsection*{Ejemplo de polimorfismo con clases}
+\begin{lstlisting}
+class Perro:
+    def sonido(self): return "Guau!"
+
+class Gato:
+    def sonido(self): return "Miau!"
+
+animales = [Perro(), Gato()]
+for animal in animales:
+    print(animal.sonido())
+# Salida: Guau! / Miau!
+\end{lstlisting}
+
+\subsection*{Polimorfismo en funciones internas}
+En Python, funciones como \texttt{len()} son polimórficas: pueden operar con strings, listas, tuplas o diccionarios.
+
+% -----------------------
+% Interfaces
+% -----------------------
+\section{Interfaces}
+En lenguajes como Java, las interfaces son tipos que definen un conjunto de métodos sin implementación.  
+En Python, se simulan con clases abstractas.
+
+\begin{lstlisting}
+class Volador(ABC):
+    @abstractmethod
+    def volar(self): pass
+
+class Pajaro(Volador):
+    def volar(self): print("El pájaro vuela")
+\end{lstlisting}
+
+También existen alternativas modernas como los \textbf{protocolos}, que permiten declarar interfaces de forma implícita.
+
+% -----------------------
+% MRO
+% -----------------------
+\section{Method Resolution Order (MRO)}
+Cuando existe herencia múltiple, Python utiliza el algoritmo \textbf{C3 linearization} para definir el orden de búsqueda de métodos.
+
+\begin{lstlisting}
+class A: pass
+class B(A): pass
+class C(A): pass
+class D(B, C): pass
+
+print(D.mro())
+# [D, B, C, A, object]
+\end{lstlisting}
+
+Este orden garantiza coherencia y evita ambigüedades.  
+En general, Python busca de izquierda a derecha en la declaración de herencia.
+
+% -----------------------
+% Ejemplo matemático
+% -----------------------
+\section{Ejemplo Matemático en POO}
+Un ejemplo clásico es calcular el área de un círculo. La fórmula es:
+
+\[
+A = \pi r^2
+\]
+
+En Python:
+\begin{lstlisting}
+import math
+print(math.pi * 3**2)  # 28.27
+\end{lstlisting}
+
+% -----------------------
+% Esquema
+% -----------------------
+\section{Esquema Conceptual}
+El siguiente esquema muestra la relación de conceptos:
+
+\[
+\text{Clases} \rightarrow \text{Herencia} \rightarrow \text{Polimorfismo}
+\]
+\[
+\text{Clases Abstractas} \Rightarrow \text{Interfaces}
+\]
+
+% -----------------------
+% Conclusión
+% -----------------------
+\section{Conclusión}
+Los conceptos de POO permiten construir programas más claros, reutilizables y fáciles de mantener.  
+Python ofrece mecanismos simples pero potentes para aplicar herencia, abstracción, polimorfismo e interfaces.  
+El conocimiento del MRO resulta clave al trabajar con herencia múltiple.
+
+% -----------------------
+% OPCIONALES
+% -----------------------
+\section*{Temas Opcionales (Ampliación)}
+
+\begin{opcional}
+\subsection*{La función \texttt{super()}}
+Permite llamar métodos de la superclase desde la subclase. Se usa principalmente en constructores y para extender métodos ya existentes.
+\end{opcional}
+
+\begin{opcional}
+\subsection*{Duck Typing}
+El \textit{duck typing} se basa en la frase: ``Si camina como un pato y suena como un pato, probablemente sea un pato''.  
+En Python importa el comportamiento, no el tipo.
+\begin{lstlisting}
+def hazlo_volar(obj):
+    obj.volar()
+
+class Avion:
+    def volar(self): print("El avión vuela")
+
+class SuperHeroe:
+    def volar(self): print("El superhéroe vuela")
+
+hazlo_volar(Avion())
+hazlo_volar(SuperHeroe())
+\end{lstlisting}
+\end{opcional}
+
+\begin{opcional}
+\subsection*{Dunder Methods}
+Los \textit{dunder methods} (doble subrayado, como \_\_init\_\_) permiten redefinir comportamientos internos de Python.
+\begin{lstlisting}
+class Vector:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+    def __add__(self, otro):
+        return Vector(self.x + otro.x, self.y + otro.y)
+
+v1 = Vector(1,2)
+v2 = Vector(3,4)
+v3 = v1 + v2
+\end{lstlisting}
+Aquí redefinimos el operador \texttt{+} gracias al método especial \texttt{\_\_add\_\_}.
+\end{opcional}
+
+\end{document}
