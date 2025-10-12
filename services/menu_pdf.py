@@ -1,7 +1,7 @@
 # menu_pdf.py
 from fpdf import FPDF
 from typing import List
-from src.models.IMenu import IMenu
+from models.IMenu import IMenu
 import os
 
 def _latin1(s: str) -> str:

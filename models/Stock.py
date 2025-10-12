@@ -1,4 +1,4 @@
-from Ingrediente import Ingrediente
+from models.Ingrediente import Ingrediente
 
 class Stock:
     def __init__(self):

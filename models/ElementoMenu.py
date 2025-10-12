@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
-from Ingrediente import Ingrediente
-from Stock import Stock
-from IMenu import IMenu
+from models.Ingrediente import Ingrediente
+from models.Stock import Stock
+from models.IMenu import IMenu
 
 @dataclass
 class CrearMenu(IMenu):
