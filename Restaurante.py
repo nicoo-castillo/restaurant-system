@@ -1,18 +1,18 @@
-from ElementoMenu import CrearMenu
+from models.ElementoMenu import CrearMenu
 import customtkinter as ctk
 from tkinter import ttk, Toplevel, Label, messagebox
-from Ingrediente import Ingrediente
-from Stock import Stock
+from models.Ingrediente import Ingrediente
+from models.Stock import Stock
 import re
 from PIL import Image
 from CTkMessagebox import CTkMessagebox
-from Pedido import Pedido
-from BoletaFacade import BoletaFacade
+from models.Pedido import Pedido
+from services.BoletaFacade import BoletaFacade
 import pandas as pd
 from tkinter import filedialog
-from Menu_catalog import get_default_menus
-from menu_pdf import create_menu_pdf
-from ctk_pdf_viewer import CTkPDFViewer
+from services.Menu_catalog import get_default_menus
+from services.menu_pdf import create_menu_pdf
+from utils.ctk_pdf_viewer import CTkPDFViewer
 import os
 from tkinter.font import nametofont
 class AplicacionConPestanas(ctk.CTk):
@@ -30,7 +30,7 @@ class AplicacionConPestanas(ctk.CTk):
         self.pedido = Pedido()
 
         self.menus = get_default_menus()  
-  
+
         self.tabview = ctk.CTkTabview(self,command=self.on_tab_change)
         self.tabview.pack(expand=True, fill="both", padx=10, pady=10)
 
@@ -87,7 +87,7 @@ class AplicacionConPestanas(ctk.CTk):
 
         self.boton_agregar_stock = ctk.CTkButton(self.frame_tabla_csv, text="Agregar al Stock")
         self.boton_agregar_stock.pack(side="bottom", pady=10)
- 
+
     def agregar_csv_al_stock(self):
         if self.df_csv is None:
             CTkMessagebox(title="Error", message="Primero debes cargar un archivo CSV.", icon="warning")

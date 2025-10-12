@@ -1,8 +1,8 @@
 # menu_catalog.py
 from typing import List
-from ElementoMenu import CrearMenu
-from Ingrediente import Ingrediente
-from IMenu import IMenu
+from src.models.ElementoMenu import CrearMenu
+from src.models.Ingrediente import Ingrediente
+from src.models.IMenu import IMenu
 
 def get_default_menus() -> List[IMenu]:
     return [
