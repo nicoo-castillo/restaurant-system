@@ -1,20 +1,23 @@
 from models.ElementoMenu import CrearMenu
-import customtkinter as ctk
-from tkinter import ttk, Toplevel, Label, messagebox
 from models.Ingrediente import Ingrediente
 from models.Stock import Stock
-import re
-from PIL import Image
-from CTkMessagebox import CTkMessagebox
 from models.Pedido import Pedido
-from services.BoletaFacade import BoletaFacade
-import pandas as pd
-from tkinter import filedialog
 from services.Menu_catalog import get_default_menus
 from services.menu_pdf import create_menu_pdf
+from services.BoletaFacade import BoletaFacade
 from utils.ctk_pdf_viewer import CTkPDFViewer
-import os
+from tkinter import ttk, Toplevel, Label, messagebox
+from tkinter import filedialog as fd
 from tkinter.font import nametofont
+from PIL import Image
+from CTkMessagebox import CTkMessagebox
+import customtkinter as ctk
+import pandas as pd
+import os
+import re
+
+
+
 class AplicacionConPestanas(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -106,8 +109,20 @@ class AplicacionConPestanas(ctk.CTk):
         self.actualizar_treeview()   
 
     def cargar_csv(self):
-        pass
+        archivo = fd.askopenfilename(filetypes=[("CSV Files", "*.csv" )],initialdir="data/")
         
+        if not archivo:
+            return
+        
+        try:
+            self.df_csv = pd.read_csv(archivo)
+            self.mostrar_dataframe_en_tabla(self.df_csv)
+            self.boton_agregar_stock.configure(command=self.agregar_csv_al_stock)
+            CTkMessagebox(title="Éxito", message="CSV Cargado con éxito.", icon="info")
+
+        except Exception as e:
+            CTkMessagebox(title="Error", message=f"No se pudo cargar el CSV:\n{e}", icon="cancel")
+            
     def mostrar_dataframe_en_tabla(self, df):
         if self.tabla_csv:
             self.tabla_csv.destroy()
@@ -116,7 +131,6 @@ class AplicacionConPestanas(ctk.CTk):
         for col in df.columns:
             self.tabla_csv.heading(col, text=col)
             self.tabla_csv.column(col, width=100, anchor="center")
-
 
         for _, row in df.iterrows():
             self.tabla_csv.insert("", "end", values=list(row))
@@ -189,6 +203,7 @@ class AplicacionConPestanas(ctk.CTk):
         pass
 
     def configurar_pestana1(self):
+
         # Dividir la Pestaña 1 en dos frames
         frame_formulario = ctk.CTkFrame(self.tab1)
         frame_formulario.pack(side="left", fill="both", expand=True, padx=10, pady=10)
