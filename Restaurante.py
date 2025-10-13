@@ -40,13 +40,16 @@ class AplicacionConPestanas(ctk.CTk):
         self.crear_pestanas()
 
     def actualizar_treeview(self):
-
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-
+        # Agregar ingredientes del stock
         for ingrediente in self.stock.lista_ingredientes:
-            self.tree.insert("", "end", values=(ingrediente.nombre,ingrediente.unidad, ingrediente.cantidad))    
+            self.tree.insert("", "end", values=(
+                ingrediente.nombre, 
+                ingrediente.unidad, 
+                int(ingrediente.cantidad)  # ← Convertir a entero
+            ))  
 
     def on_tab_change(self):
         selected_tab = self.tabview.get()
@@ -54,6 +57,7 @@ class AplicacionConPestanas(ctk.CTk):
             print('carga de ingredientes')
         if selected_tab == "Stock":
             self.actualizar_treeview()
+            print('Stock')
         if selected_tab == "Pedido":
             self.actualizar_treeview()
             print('pedido')
@@ -63,6 +67,7 @@ class AplicacionConPestanas(ctk.CTk):
         if selected_tab == "Boleta":
             self.actualizar_treeview()
             print('Boleta')       
+
     def crear_pestanas(self):
         self.tab3 = self.tabview.add("carga de ingredientes")  
         self.tab1 = self.tabview.add("Stock")
@@ -122,7 +127,7 @@ class AplicacionConPestanas(ctk.CTk):
 
         except Exception as e:
             CTkMessagebox(title="Error", message=f"No se pudo cargar el CSV:\n{e}", icon="cancel")
-            
+
     def mostrar_dataframe_en_tabla(self, df):
         if self.tabla_csv:
             self.tabla_csv.destroy()
@@ -143,7 +148,7 @@ class AplicacionConPestanas(ctk.CTk):
 
         for menu in self.pedido.menus:
             self.treeview_menu.insert("", "end", values=(menu.nombre, menu.cantidad, f"${menu.precio:.2f}"))
-            
+
     def _configurar_pestana_crear_menu(self):
         contenedor = ctk.CTkFrame(self.tab4)
         contenedor.pack(expand=True, fill="both", padx=10, pady=10)
@@ -159,6 +164,7 @@ class AplicacionConPestanas(ctk.CTk):
         self.pdf_frame_carta.pack(expand=True, fill="both", padx=10, pady=10)
 
         self.pdf_viewer_carta = None
+
     def generar_y_mostrar_carta_pdf(self):
         try:
             pdf_path = "carta.pdf"
@@ -244,6 +250,7 @@ class AplicacionConPestanas(ctk.CTk):
 
         self.boton_generar_menu = ctk.CTkButton(frame_treeview, text="Generar Menú", command=self.generar_menus)
         self.boton_generar_menu.pack(pady=10)
+        
     def tarjeta_click(self, event, menu):
         suficiente_stock = True
         if self.stock.lista_ingredientes==[]:
@@ -275,7 +282,6 @@ class AplicacionConPestanas(ctk.CTk):
         icono_menu = ctk.CTkImage(imagen, size=(64, 64))
         return icono_menu
 
-    
     def generar_menus(self):
         pass
 
@@ -375,10 +381,6 @@ class AplicacionConPestanas(ctk.CTk):
 
     def eliminar_ingrediente(self):
         pass
-
-    def actualizar_treeview(self):
-        pass
-
 
 if __name__ == "__main__":
     import customtkinter as ctk
