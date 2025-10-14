@@ -23,7 +23,7 @@ class AplicacionConPestanas(ctk.CTk):
         super().__init__()
         
         self.title("Gestión de ingredientes y pedidos")
-        self.geometry("870x700")
+        self.geometry("1100x900")
         nametofont("TkHeadingFont").configure(size=14)
         nametofont("TkDefaultFont").configure(size=11)
 
@@ -42,14 +42,14 @@ class AplicacionConPestanas(ctk.CTk):
     def actualizar_treeview(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
-
-        # Agregar ingredientes del stock
         for ingrediente in self.stock.lista_ingredientes:
-            self.tree.insert("", "end", values=(
-                ingrediente.nombre, 
-                ingrediente.unidad, 
-                int(ingrediente.cantidad)  # ← Convertir a entero
-            ))  
+            cantidad = ingrediente.cantidad
+            if cantidad == int(cantidad): 
+                cantidad_str = str(int(cantidad))
+            else: 
+                cantidad_str = str(cantidad)
+        
+            self.tree.insert("", "end", values=(ingrediente.nombre, ingrediente.unidad, cantidad_str))
 
     def on_tab_change(self):
         selected_tab = self.tabview.get()
@@ -69,7 +69,7 @@ class AplicacionConPestanas(ctk.CTk):
             print('Boleta')       
 
     def crear_pestanas(self):
-        self.tab3 = self.tabview.add("carga de ingredientes")  
+        self.tab3 = self.tabview.add("Carga de ingredientes")  
         self.tab1 = self.tabview.add("Stock")
         self.tab4 = self.tabview.add("Carta restorante")  
         self.tab2 = self.tabview.add("Pedido")
@@ -283,7 +283,37 @@ class AplicacionConPestanas(ctk.CTk):
         return icono_menu
 
     def generar_menus(self):
-        pass
+        for widget in tarjetas_frame.winfo_children():
+            widget.destroy()
+        self.menus_creados.clear()
+    
+        if not self.stock.lista_ingredientes:
+            CTkMessagebox(
+                title="Sin stock", 
+                message="Primero debes cargar ingredientes al stock.", 
+                icon="warning"
+            )
+            return
+    
+        menus_disponibles = 0
+        for menu in self.menus:
+            if menu.esta_disponible(self.stock):
+                self.crear_tarjeta(menu)
+                self.menus_creados.add(menu.nombre)
+                menus_disponibles += 1
+    
+        if menus_disponibles == 0:
+            CTkMessagebox(
+                title="Sin menús disponibles", 
+                message="No hay ingredientes suficientes para crear ningún menú.\n\nRevisa el stock.", 
+                icon="warning"
+            )
+        else:
+            CTkMessagebox(
+                title="Menús generados", 
+                message=f"Se generaron {menus_disponibles} menú(s) disponible(s).", 
+                icon="info"
+            )
 
     def eliminar_menu(self):
         pass
