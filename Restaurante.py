@@ -209,47 +209,65 @@ class AplicacionConPestanas(ctk.CTk):
         pass
 
     def configurar_pestana1(self):
+        frame_principal = ctk.CTkFrame(self.tab1)
+        frame_principal.pack(fill="both", expand=True, padx=10, pady=10)
+    
+        frame_formulario = ctk.CTkFrame(frame_principal)
+        frame_formulario.pack(side="left", fill="both", expand=False, padx=(0, 10))
+    
+        frame_derecha = ctk.CTkFrame(frame_principal)
+        frame_derecha.pack(side="right", fill="both", expand=True)
 
-        # Dividir la Pestaña 1 en dos frames
-        frame_formulario = ctk.CTkFrame(self.tab1)
-        frame_formulario.pack(side="left", fill="both", expand=True, padx=10, pady=10)
-
-        frame_treeview = ctk.CTkFrame(self.tab1)
-        frame_treeview.pack(side="right", fill="both", expand=True, padx=10, pady=10)
-
-        # Formulario en el primer frame
+        label_titulo = ctk.CTkLabel(frame_formulario, text="Agregar Ingrediente", 
+                                    font=("Helvetica", 14, "bold"))
+        label_titulo.pack(pady=10)
+    
         label_nombre = ctk.CTkLabel(frame_formulario, text="Nombre del Ingrediente:")
-        label_nombre.pack(pady=5)
-        self.entry_nombre = ctk.CTkEntry(frame_formulario)
+        label_nombre.pack(pady=(10, 5))
+        self.entry_nombre = ctk.CTkEntry(frame_formulario, width=200)
         self.entry_nombre.pack(pady=5)
-
-        label_cantidad = ctk.CTkLabel(frame_formulario, text="Unidad:")
-        label_cantidad.pack(pady=5)
-        self.combo_unidad = ctk.CTkComboBox(frame_formulario, values=["kg", "unid"])
+    
+        label_unidad = ctk.CTkLabel(frame_formulario, text="Unidad:")
+        label_unidad.pack(pady=(10, 5))
+        self.combo_unidad = ctk.CTkComboBox(frame_formulario, values=["kg", "unid"], width=200)
         self.combo_unidad.pack(pady=5)
-
+    
         label_cantidad = ctk.CTkLabel(frame_formulario, text="Cantidad:")
-        label_cantidad.pack(pady=5)
-        self.entry_cantidad = ctk.CTkEntry(frame_formulario)
+        label_cantidad.pack(pady=(10, 5))
+        self.entry_cantidad = ctk.CTkEntry(frame_formulario, width=200)
         self.entry_cantidad.pack(pady=5)
-
-        self.boton_ingresar = ctk.CTkButton(frame_formulario, text="Ingresar Ingrediente")
-        self.boton_ingresar.configure(command=self.ingresar_ingrediente)
-        self.boton_ingresar.pack(pady=10)
-
-        self.boton_eliminar = ctk.CTkButton(frame_treeview, text="Eliminar Ingrediente", fg_color="black", text_color="white")
-        self.boton_eliminar.configure(command=self.eliminar_ingrediente)
-        self.boton_eliminar.pack(pady=10)
-
-        self.tree = ttk.Treeview(self.tab1, columns=("Nombre", "Unidad","Cantidad"), show="headings",height=25)
-        
+    
+        self.boton_ingresar = ctk.CTkButton(frame_formulario, text="Ingresar Ingrediente",
+                                        command=self.ingresar_ingrediente)
+        self.boton_ingresar.pack(pady=20)
+    
+        frame_botones = ctk.CTkFrame(frame_derecha)
+        frame_botones.pack(fill="x", padx=10, pady=(10, 5))
+    
+        self.boton_generar_menu = ctk.CTkButton(frame_botones, text="Generar Menú", 
+                                            command=self.generar_menus)
+        self.boton_generar_menu.pack(side="left", padx=5)
+    
+        self.boton_eliminar = ctk.CTkButton(frame_botones, text="Eliminar Ingrediente", 
+                                        fg_color="red", hover_color="darkred",
+                                        command=self.eliminar_ingrediente)
+        self.boton_eliminar.pack(side="left", padx=5)
+    
+        frame_tree = ctk.CTkFrame(frame_derecha)
+        frame_tree.pack(fill="both", expand=True, padx=10, pady=10)
+    
+        self.tree = ttk.Treeview(frame_tree, columns=("Nombre", "Unidad", "Cantidad"), 
+                            show="headings", height=20)
+    
         self.tree.heading("Nombre", text="Nombre")
         self.tree.heading("Unidad", text="Unidad")
         self.tree.heading("Cantidad", text="Cantidad")
-        self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
-        self.boton_generar_menu = ctk.CTkButton(frame_treeview, text="Generar Menú", command=self.generar_menus)
-        self.boton_generar_menu.pack(pady=10)
+        scrollbar = ttk.Scrollbar(frame_tree, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
+    
+        self.tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
         
     def tarjeta_click(self, event, menu):
         suficiente_stock = True
@@ -407,10 +425,74 @@ class AplicacionConPestanas(ctk.CTk):
             return False
 
     def ingresar_ingrediente(self):
-        pass
+        nombre = self.entry_nombre.get().strip()
+        unidad = self.combo_unidad.get()
+        cantidad = self.entry_cantidad.get().strip()
+    
+        if not nombre or not cantidad:
+            CTkMessagebox(
+                title="Error", 
+                message="Todos los campos son obligatorios.", 
+                icon="warning"
+            )
+            return
+    
+        if not self.validar_cantidad(cantidad):
+            return
+    
+        ingrediente = Ingrediente(nombre=nombre, unidad=unidad, cantidad=float(cantidad))
+    
+        self.stock.agregar_ingrediente(ingrediente)
+    
+        self.entry_nombre.delete(0, 'end')
+        self.entry_cantidad.delete(0, 'end')
+    
+        self.actualizar_treeview()
+    
+        CTkMessagebox(
+            title="Éxito", 
+            message=f"Ingrediente '{nombre}' agregado correctamente.", 
+            icon="info"
+        )
+
 
     def eliminar_ingrediente(self):
-        pass
+        seleccion = self.tree.selection()
+        if not seleccion:
+            CTkMessagebox(
+                title="Error", 
+                message="Selecciona un ingrediente de la tabla para eliminar.", 
+                icon="warning"
+            )
+            return
+    
+        # Obtener el nombre del ingrediente seleccionado
+        item = self.tree.item(seleccion[0])
+        nombre = item['values'][0]  # Primera columna = nombre
+    
+        # Confirmar eliminación
+        from CTkMessagebox import CTkMessagebox
+        respuesta = CTkMessagebox(
+            title="Confirmar eliminación",
+            message=f"¿Estás seguro de eliminar '{nombre}'?",
+            icon="question",
+            option_1="Cancelar",
+            option_2="Eliminar"
+        )
+    
+        if respuesta.get() == "Eliminar":
+            # Eliminar del stock
+            self.stock.eliminar_ingrediente(nombre)
+        
+            # Actualizar la tabla
+            self.actualizar_treeview()
+        
+            # Mostrar confirmación
+            CTkMessagebox(
+                title="Éxito", 
+                message=f"Ingrediente '{nombre}' eliminado correctamente.", 
+                icon="check"
+            )
 
 if __name__ == "__main__":
     import customtkinter as ctk
