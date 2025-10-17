@@ -206,7 +206,34 @@ class AplicacionConPestanas(ctk.CTk):
         
 
     def mostrar_boleta(self):
-        pass
+        pdf_path = "boleta.pdf"
+        if not os.path.exists(pdf_path):
+            CTkMessagebox(
+                title="Error", 
+                message="No se encontró ninguna boleta generada.\n\nPrimero genera una boleta desde la pestaña 'Pedido'.", 
+                icon="warning"
+            )
+            return
+    
+        try:
+            if self.pdf_viewer_boleta is not None:
+                try:
+                    self.pdf_viewer_boleta.pack_forget()
+                    self.pdf_viewer_boleta.destroy()
+                except Exception:
+                    pass
+                self.pdf_viewer_boleta = None
+        
+            abs_pdf = os.path.abspath(pdf_path)
+            self.pdf_viewer_boleta = CTkPDFViewer(self.pdf_frame_boleta, file=abs_pdf)
+            self.pdf_viewer_boleta.pack(expand=True, fill="both")
+        
+        except Exception as e:
+            CTkMessagebox(
+                title="Error", 
+                message=f"No se pudo mostrar la boleta:\n{e}", 
+                icon="cancel"
+            )
 
     def configurar_pestana1(self):
         frame_principal = ctk.CTkFrame(self.tab1)
@@ -334,10 +361,83 @@ class AplicacionConPestanas(ctk.CTk):
             )
 
     def eliminar_menu(self):
-        pass
+        seleccion = self.treeview_menu.selection()
+        if not seleccion:
+            CTkMessagebox(
+                title="Error", 
+                message="Selecciona un menú de la tabla para eliminar.", 
+                icon="warning"
+            )
+            return
+
+        item = self.treeview_menu.item(seleccion[0])
+        nombre_menu = item['values'][0]  
+        
+        menu_a_eliminar = None
+        for menu in self.pedido.menus:
+            if menu.nombre == nombre_menu:
+                menu_a_eliminar = menu
+                break
+    
+        if menu_a_eliminar:
+            for ingrediente in menu_a_eliminar.ingredientes:
+                for ing_stock in self.stock.lista_ingredientes:
+                    if ing_stock.nombre == ingrediente.nombre and ing_stock.unidad == ingrediente.unidad:
+                        ing_stock.cantidad = float(ing_stock.cantidad) + (float(ingrediente.cantidad) * menu_a_eliminar.cantidad)
+                        break
+        self.pedido.eliminar_menu(nombre_menu)
+    
+        self.actualizar_treeview_pedido()
+    
+        total = self.pedido.calcular_total()
+        self.label_total.configure(text=f"Total: ${total:.2f}")
+    
+        self.actualizar_treeview()
+    
+        CTkMessagebox(
+            title="Éxito", 
+            message=f"Menú '{nombre_menu}' eliminado del pedido.", 
+            icon="check"
+        )
 
     def generar_boleta(self):
-        pass
+        if not self.pedido.menus:
+            CTkMessagebox(
+                title="Error", 
+                message="El pedido está vacío. Agrega menús antes de generar la boleta.", 
+                icon="warning"
+            )
+            return
+    
+        try:
+            boleta = BoletaFacade(self.pedido)
+            mensaje = boleta.generar_boleta()
+        
+            CTkMessagebox(
+                title="Boleta generada", 
+                message=mensaje, 
+                icon="check"
+            )
+        
+            respuesta = CTkMessagebox(
+                title="Limpiar pedido",
+                message="¿Deseas limpiar el pedido actual?",
+                icon="question",
+                option_1="No",
+                option_2="Sí"
+            )
+        
+            if respuesta.get() == "Sí":
+                self.pedido.menus = []
+                self.actualizar_treeview_pedido()
+                self.label_total.configure(text="Total: $0.00")
+            
+        except Exception as e:
+            CTkMessagebox(
+                title="Error", 
+                message=f"No se pudo generar la boleta:\n{e}", 
+                icon="cancel"
+            )
 
     def configurar_pestana2(self):
         frame_superior = ctk.CTkFrame(self.tab2)
@@ -448,7 +548,7 @@ class AplicacionConPestanas(ctk.CTk):
         self.entry_cantidad.delete(0, 'end')
     
         self.actualizar_treeview()
-    
+        
         CTkMessagebox(
             title="Éxito", 
             message=f"Ingrediente '{nombre}' agregado correctamente.", 
@@ -460,17 +560,15 @@ class AplicacionConPestanas(ctk.CTk):
         seleccion = self.tree.selection()
         if not seleccion:
             CTkMessagebox(
-                title="Error", 
-                message="Selecciona un ingrediente de la tabla para eliminar.", 
-                icon="warning"
+            title="Error", 
+            message="Selecciona un ingrediente de la tabla para eliminar.", 
+            icon="warning"
             )
             return
-    
-        # Obtener el nombre del ingrediente seleccionado
+
         item = self.tree.item(seleccion[0])
-        nombre = item['values'][0]  # Primera columna = nombre
+        nombre = item['values'][0] 
     
-        # Confirmar eliminación
         from CTkMessagebox import CTkMessagebox
         respuesta = CTkMessagebox(
             title="Confirmar eliminación",
@@ -481,13 +579,10 @@ class AplicacionConPestanas(ctk.CTk):
         )
     
         if respuesta.get() == "Eliminar":
-            # Eliminar del stock
             self.stock.eliminar_ingrediente(nombre)
-        
-            # Actualizar la tabla
+
             self.actualizar_treeview()
         
-            # Mostrar confirmación
             CTkMessagebox(
                 title="Éxito", 
                 message=f"Ingrediente '{nombre}' eliminado correctamente.", 

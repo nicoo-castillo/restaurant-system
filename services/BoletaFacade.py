@@ -61,7 +61,7 @@ class BoletaFacade:
         pdf.cell(30, 10, f"${self.total:.2f}", ln=True, align='R')
         
         pdf.set_font("Arial", 'I', 10)
-        pdf.cell(0, 10, "Gracias por su compra. Para cualquier consulta, llámenos al +56 9 777 5678.", 0, 1, 'C')
+        pdf.cell(0, 10, "Gracias por su compra. Para cualquier consulta, llámenos al +56 9 7777 5678.", 0, 1, 'C')
         pdf.cell(0, 10, "Los productos adquiridos no tienen garantía.", 0, 1, 'C')
         
 

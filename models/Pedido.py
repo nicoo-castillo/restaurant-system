@@ -14,7 +14,7 @@ class Pedido:
         self.menus.append(nuevo_menu)
 
     def eliminar_menu(self, nombre_menu: str):
-        pass
+        self.menus = [m for m in self.menus if m.nombre != nombre_menu]
 
     def mostrar_pedido(self):
         pass
