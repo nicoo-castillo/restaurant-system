@@ -14,13 +14,3 @@ class Stock:
     def eliminar_ingrediente(self, nombre_ingrediente):
         self.lista_ingredientes = [ing for ing in self.lista_ingredientes 
                                     if ing.nombre != nombre_ingrediente]    
-
-    def verificar_stock(self):
-        pass
-
-    def actualizar_stock(self, nombre_ingrediente, nueva_cantidad):
-        pass
-
-    def obtener_elementos_menu(self):
-        pass
-

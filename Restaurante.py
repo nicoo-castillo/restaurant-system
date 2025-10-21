@@ -93,16 +93,16 @@ class AplicacionConPestanas(ctk.CTk):
         self.df_csv = None   
         self.tabla_csv = None
 
-        self.boton_agregar_stock = ctk.CTkButton(self.frame_tabla_csv, text="Agregar al Stock")
+        self.boton_agregar_stock = ctk.CTkButton(self.frame_tabla_csv, text="Agregar al Stock", command=self.agregar_csv_al_stock)
         self.boton_agregar_stock.pack(side="bottom", pady=10)
 
     def agregar_csv_al_stock(self):
         if self.df_csv is None:
-            CTkMessagebox(title="Error", message="Primero debes cargar un archivo CSV.", icon="warning")
+            messagebox.showwarning(title="Error", message="Primero debes cargar un archivo CSV.")
             return
 
         if 'nombre' not in self.df_csv.columns or 'cantidad' not in self.df_csv.columns:
-            CTkMessagebox(title="Error", message="El CSV debe tener columnas 'nombre' y 'cantidad'.", icon="warning")
+            messagebox.showwarning(title="Error", message="El CSV debe tener columnas 'nombre' y 'cantidad'.")
             return
         for _, row in self.df_csv.iterrows():
             nombre = str(row['nombre'])
@@ -110,7 +110,7 @@ class AplicacionConPestanas(ctk.CTk):
             unidad = str(row['unidad'])
             ingrediente = Ingrediente(nombre=nombre,unidad=unidad,cantidad=cantidad)
             self.stock.agregar_ingrediente(ingrediente)
-        CTkMessagebox(title="Stock Actualizado", message="Ingredientes agregados al stock correctamente.", icon="info")
+        messagebox.showinfo(title="Stock Actualizado", message="Ingredientes agregados al stock correctamente.")
         self.actualizar_treeview()   
 
     def cargar_csv(self):
@@ -123,10 +123,10 @@ class AplicacionConPestanas(ctk.CTk):
             self.df_csv = pd.read_csv(archivo)
             self.mostrar_dataframe_en_tabla(self.df_csv)
             self.boton_agregar_stock.configure(command=self.agregar_csv_al_stock)
-            CTkMessagebox(title="Éxito", message="CSV Cargado con éxito.", icon="info")
+            messagebox.showinfo(title="Éxito", message="CSV Cargado con éxito.")
 
         except Exception as e:
-            CTkMessagebox(title="Error", message=f"No se pudo cargar el CSV:\n{e}", icon="cancel")
+            messagebox(title="Error", message=f"No se pudo cargar el CSV:\n{e}", icon="cancel")
 
     def mostrar_dataframe_en_tabla(self, df):
         if self.tabla_csv:
@@ -167,7 +167,7 @@ class AplicacionConPestanas(ctk.CTk):
 
     def generar_y_mostrar_carta_pdf(self):
         try:
-            pdf_path = "carta.pdf"
+            pdf_path = "doc/carta.pdf"
             create_menu_pdf(self.menus, pdf_path,
                 titulo_negocio="Restaurante",
                 subtitulo="Carta Primavera 2025",
@@ -203,15 +203,13 @@ class AplicacionConPestanas(ctk.CTk):
         self.pdf_frame_boleta.pack(expand=True, fill="both", padx=10, pady=10)
     
         self.pdf_viewer_boleta = None
-        
 
     def mostrar_boleta(self):
-        pdf_path = "boleta.pdf"
+        pdf_path = "doc/boleta.pdf"
         if not os.path.exists(pdf_path):
-            CTkMessagebox(
+            messagebox.showerror(
                 title="Error", 
-                message="No se encontró ninguna boleta generada.\n\nPrimero genera una boleta desde la pestaña 'Pedido'.", 
-                icon="warning"
+                message="No se encontró ninguna boleta generada.\n\nPrimero genera una boleta desde la pestaña 'Pedido'."
             )
             return
     
@@ -229,10 +227,9 @@ class AplicacionConPestanas(ctk.CTk):
             self.pdf_viewer_boleta.pack(expand=True, fill="both")
         
         except Exception as e:
-            CTkMessagebox(
+            messagebox.showerror(
                 title="Error", 
-                message=f"No se pudo mostrar la boleta:\n{e}", 
-                icon="cancel"
+                message=f"No se pudo mostrar la boleta:\n{e}"
             )
 
     def configurar_pestana1(self):
@@ -256,7 +253,7 @@ class AplicacionConPestanas(ctk.CTk):
     
         label_unidad = ctk.CTkLabel(frame_formulario, text="Unidad:")
         label_unidad.pack(pady=(10, 5))
-        self.combo_unidad = ctk.CTkComboBox(frame_formulario, values=["kg", "unid"], width=200)
+        self.combo_unidad = ctk.CTkComboBox(frame_formulario, values=[ "unid"], width=200)
         self.combo_unidad.pack(pady=5)
     
         label_cantidad = ctk.CTkLabel(frame_formulario, text="Cantidad:")
@@ -331,42 +328,38 @@ class AplicacionConPestanas(ctk.CTk):
         for widget in tarjetas_frame.winfo_children():
             widget.destroy()
         self.menus_creados.clear()
-    
+
         if not self.stock.lista_ingredientes:
-            CTkMessagebox(
+            messagebox.showwarning(
                 title="Sin stock", 
-                message="Primero debes cargar ingredientes al stock.", 
-                icon="warning"
+                message="Primero debes cargar ingredientes al stock."
             )
             return
-    
+
         menus_disponibles = 0
         for menu in self.menus:
             if menu.esta_disponible(self.stock):
                 self.crear_tarjeta(menu)
                 self.menus_creados.add(menu.nombre)
                 menus_disponibles += 1
-    
+
         if menus_disponibles == 0:
-            CTkMessagebox(
+            messagebox.showwarning(
                 title="Sin menús disponibles", 
-                message="No hay ingredientes suficientes para crear ningún menú.\n\nRevisa el stock.", 
-                icon="warning"
+                message="No hay ingredientes suficientes para crear ningún menú.\n\nRevisa el stock."
             )
         else:
-            CTkMessagebox(
+            messagebox.showinfo(
                 title="Menús generados", 
-                message=f"Se generaron {menus_disponibles} menú(s) disponible(s).", 
-                icon="info"
+                message=f"Se generaron {menus_disponibles} menú(s) disponible(s)."
             )
 
     def eliminar_menu(self):
         seleccion = self.treeview_menu.selection()
         if not seleccion:
-            CTkMessagebox(
+            messagebox.showwarning(
                 title="Error", 
-                message="Selecciona un menú de la tabla para eliminar.", 
-                icon="warning"
+                message="Selecciona un menú de la tabla para eliminar."
             )
             return
 
@@ -394,18 +387,16 @@ class AplicacionConPestanas(ctk.CTk):
     
         self.actualizar_treeview()
     
-        CTkMessagebox(
+        messagebox.showinfo(
             title="Éxito", 
-            message=f"Menú '{nombre_menu}' eliminado del pedido.", 
-            icon="check"
+            message=f"Menú '{nombre_menu}' eliminado del pedido."
         )
 
     def generar_boleta(self):
         if not self.pedido.menus:
-            CTkMessagebox(
+            messagebox.showwarning(
                 title="Error", 
-                message="El pedido está vacío. Agrega menús antes de generar la boleta.", 
-                icon="warning"
+                message="El pedido está vacío. Agrega menús antes de generar la boleta."
             )
             return
     
@@ -413,30 +404,28 @@ class AplicacionConPestanas(ctk.CTk):
             boleta = BoletaFacade(self.pedido)
             mensaje = boleta.generar_boleta()
         
-            CTkMessagebox(
+            messagebox.showinfo(
                 title="Boleta generada", 
-                message=mensaje, 
-                icon="check"
+                message=mensaje
             )
         
-            respuesta = CTkMessagebox(
+            respuesta = messagebox.askyesno(
                 title="Limpiar pedido",
                 message="¿Deseas limpiar el pedido actual?",
-                icon="question",
-                option_1="No",
-                option_2="Sí"
             )
         
-            if respuesta.get() == "Sí":
+            if respuesta:
                 self.pedido.menus = []
                 self.actualizar_treeview_pedido()
                 self.label_total.configure(text="Total: $0.00")
             
+            else:
+                return
+            
         except Exception as e:
-            CTkMessagebox(
+            messagebox.showerror(
                 title="Error", 
-                message=f"No se pudo generar la boleta:\n{e}", 
-                icon="cancel"
+                message=f"No se pudo generar la boleta:\n{e}"
             )
 
     def configurar_pestana2(self):
@@ -530,10 +519,9 @@ class AplicacionConPestanas(ctk.CTk):
         cantidad = self.entry_cantidad.get().strip()
     
         if not nombre or not cantidad:
-            CTkMessagebox(
+            messagebox.showwarning(
                 title="Error", 
-                message="Todos los campos son obligatorios.", 
-                icon="warning"
+                message="Todos los campos son obligatorios."
             )
             return
     
@@ -549,45 +537,39 @@ class AplicacionConPestanas(ctk.CTk):
     
         self.actualizar_treeview()
         
-        CTkMessagebox(
+        messagebox.showinfo(
             title="Éxito", 
-            message=f"Ingrediente '{nombre}' agregado correctamente.", 
-            icon="info"
+            message=f"Ingrediente '{nombre}' agregado correctamente."
         )
-
 
     def eliminar_ingrediente(self):
         seleccion = self.tree.selection()
         if not seleccion:
-            CTkMessagebox(
+            messagebox.showwarning(
             title="Error", 
-            message="Selecciona un ingrediente de la tabla para eliminar.", 
-            icon="warning"
+            message="Selecciona un ingrediente de la tabla para eliminar."
             )
             return
 
         item = self.tree.item(seleccion[0])
         nombre = item['values'][0] 
     
-        from CTkMessagebox import CTkMessagebox
-        respuesta = CTkMessagebox(
+        respuesta = messagebox.askyesno(
             title="Confirmar eliminación",
-            message=f"¿Estás seguro de eliminar '{nombre}'?",
-            icon="question",
-            option_1="Cancelar",
-            option_2="Eliminar"
+            message=f"¿Estás seguro de eliminar '{nombre}'?"
         )
     
-        if respuesta.get() == "Eliminar":
+        if respuesta:
             self.stock.eliminar_ingrediente(nombre)
 
             self.actualizar_treeview()
         
-            CTkMessagebox(
-                title="Éxito", 
-                message=f"Ingrediente '{nombre}' eliminado correctamente.", 
-                icon="check"
+            messagebox.Message(
+                "Éxito", 
+                f"Ingrediente '{nombre}' eliminado correctamente.", 
             )
+        else:
+            return
 
 if __name__ == "__main__":
     import customtkinter as ctk

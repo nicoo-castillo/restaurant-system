@@ -65,7 +65,7 @@ class BoletaFacade:
         pdf.cell(0, 10, "Los productos adquiridos no tienen garantía.", 0, 1, 'C')
         
 
-        pdf_filename = "boleta.pdf"
+        pdf_filename = "doc/boleta.pdf"
         pdf.output(pdf_filename)
         return pdf_filename
 

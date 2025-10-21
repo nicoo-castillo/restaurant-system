@@ -16,9 +16,6 @@ class Pedido:
     def eliminar_menu(self, nombre_menu: str):
         self.menus = [m for m in self.menus if m.nombre != nombre_menu]
 
-    def mostrar_pedido(self):
-        pass
-
     def calcular_total(self) -> float:
         total = 0
         for menu in self.menus:

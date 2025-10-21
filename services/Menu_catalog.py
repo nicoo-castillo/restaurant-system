@@ -10,8 +10,8 @@ def get_default_menus() -> List[IMenu]:
             [
                 Ingrediente("Vienesa","unid", 1),
                 Ingrediente("Pan de completo","unid", 1),
-                Ingrediente("Palta","kg",0.5),
-                Ingrediente("Tomate","kg",0.2),
+                Ingrediente("Palta","unid",1),
+                Ingrediente("Tomate","unid",1),
             ],
             precio=1800,
             icono_path="assets/IMG/icono_hotdog_sin_texto_64x64.png",
@@ -22,7 +22,7 @@ def get_default_menus() -> List[IMenu]:
                 Ingrediente("Pan de hamburguesa","unid",1),
                 Ingrediente("Lamina de queso","unid",1),
                 Ingrediente("Churrasco de carne","unid",1),
-                Ingrediente("Tomate","kg",0.2),
+                Ingrediente("Tomate","unid",1),
                 Ingrediente("Lechuga","unid",1),
             ],
             precio=4500,
@@ -31,13 +31,13 @@ def get_default_menus() -> List[IMenu]:
         CrearMenu(
             "Chorrillana",
             [
-                Ingrediente("Papas","kg",2.5),
-                Ingrediente("Carne de vacuno","kg",1.2),
+                Ingrediente("Papas","unid",5),
+                Ingrediente("Carne de vacuno","unid",1),
                 Ingrediente("Huevos","unid",4),
                 Ingrediente("Cebolla","unid",2),
                 Ingrediente("Vienesa","unid",4),
                 Ingrediente("Lamina de queso","unid",5),
-                Ingrediente("Pollo","kg",1.2),
+                Ingrediente("Pollo","unid",2),
             ],
             precio=12000,
             icono_path="assets/IMG/icono_chorrillana_64x64.png",
@@ -46,7 +46,7 @@ def get_default_menus() -> List[IMenu]:
             "Empana de queso",
             [
                 Ingrediente("Masa de empanada","unid",1),
-                Ingrediente("Queso de empanada","kg",0.5),
+                Ingrediente("Queso de empanada","unid",1),
             ],
             precio=2000,
             icono_path="assets/IMG/icono_empanada_queso_64x64.png",
@@ -54,7 +54,7 @@ def get_default_menus() -> List[IMenu]:
         CrearMenu(
             "Papas Fritas",
             [
-                Ingrediente("Papas","kg",0.5),
+                Ingrediente("Papas","unid",2),
             ],
             precio=2000,
             icono_path="assets/IMG/icono_papas_fritas_64x64.png",
