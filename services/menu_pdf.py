@@ -1,4 +1,4 @@
-# menu_pdf.py
+
 from fpdf import FPDF
 from typing import List
 from models.IMenu import IMenu
